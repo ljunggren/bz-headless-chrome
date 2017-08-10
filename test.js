@@ -1,6 +1,6 @@
 const CDP = require('chrome-remote-interface');
 const chromeLauncher = require('chrome-launcher');
-
+ 
 /**
  * Launches a debugging instance of Chrome.
  * @param {boolean=} headless True (default) launches Chrome in headless mode.
@@ -36,15 +36,26 @@ Page.loadEventFired(async () => {
 });
 
 
+var fs = require('fs');
+
 Runtime.consoleAPICalled(function(params) {
     // Not working when I open Chrome devtools.
-    console.log('Runtime.consoleAPICalled', params.args);
+    var logstring = params.args[0].value;
+    console.log('Runtime.consoleAPICalled', logstring);
 
-    if (params.args.contains("All tests completed!")) {
+    if (logstring.includes("All tests completed!")) {
+      fs.writeFile("report.html", logstring, function(err) {
+        if(err) {
+          return console.log(err);
+        }
+          console.log("The report was saved!");
+        }); 
        protocol.close();
        chrome.kill(); // Kill Chrome.
     }
    
 });
+
+
 
 })();
