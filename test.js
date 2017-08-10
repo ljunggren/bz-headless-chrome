@@ -1,6 +1,12 @@
 const CDP = require('chrome-remote-interface');
 const chromeLauncher = require('chrome-launcher');
  
+
+var testurl = process.argv[2];
+var reportfile = process.argv[3];
+console.log('Test url :' + testurl);
+
+
 /**
  * Launches a debugging instance of Chrome.
  * @param {boolean=} headless True (default) launches Chrome in headless mode.
@@ -28,7 +34,7 @@ const {Page, Runtime} = protocol;
 await Page.enable();
 await Runtime.enable();
 
-Page.navigate({url: 'http://localhost:8000/ci/headlesstest.html'});
+Page.navigate({url: testurl});
 
 // Wait for window.onload before doing stuff.
 Page.loadEventFired(async () => {
@@ -44,7 +50,7 @@ Runtime.consoleAPICalled(function(params) {
     console.log('Runtime.consoleAPICalled', logstring);
 
     if (logstring.includes("All tests completed!")) {
-      fs.writeFile("report.html", logstring, function(err) {
+      fs.writeFile(reportfile, logstring, function(err) {
         if(err) {
           return console.log(err);
         }
