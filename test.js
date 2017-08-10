@@ -1,6 +1,10 @@
 const CDP = require('chrome-remote-interface');
 const chromeLauncher = require('chrome-launcher');
  
+if (process.argv.length < 4) {
+  console.log('Usage: node test.js testurl reportfile [-d]');
+  process.exit(-1);
+}
 
 var testurl = process.argv[2];
 var reportfile = process.argv[3];
@@ -25,7 +29,7 @@ function launchChrome(headless=true) {
 
 (async function() {
 
-const chrome = await launchChrome();
+const chrome = await launchChrome(true);
 const protocol = await CDP({port: chrome.port});
 
 // Extract the DevTools protocol domains we need and enable them.
@@ -49,13 +53,16 @@ Runtime.consoleAPICalled(function(params) {
     var logstring = params.args[0].value;
     console.log('Runtime.consoleAPICalled', logstring);
 
-    if (logstring.includes("All tests completed!")) {
-      fs.writeFile(reportfile, logstring, function(err) {
+    if (logstring.includes("<html>")) {
+    	fs.writeFile(reportfile, logstring, function(err) {
         if(err) {
           return console.log(err);
         }
           console.log("The report was saved!");
         }); 
+    }
+
+    if (logstring.includes("All tests completed!")) { 
        protocol.close();
        chrome.kill(); // Kill Chrome.
     }
