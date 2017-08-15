@@ -1,0 +1,9 @@
+{
+  "name": "headless-chrome-driver",
+  "version": "1.0.0",
+  "description": "An Simple Driver for Chrome Headless",
+  "dependencies": {
+    "chrome-remote-interface": "latest",
+    "chrome-launcher": "latest"
+  }
+}
